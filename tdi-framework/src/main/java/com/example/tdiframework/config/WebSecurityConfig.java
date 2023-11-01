@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -45,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -57,6 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
                 .csrf().disable()
+                .httpBasic().disable()
                 .headers()
                 .frameOptions().sameOrigin()
                 .httpStrictTransportSecurity().disable()
@@ -68,9 +71,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/authenticate", "/api/user/register", "/api/user/forgot-password").permitAll()
                 .antMatchers("/api/user/send-otp", "/api/user/resend-otp", "/api/user/verify-otp").permitAll()
                 .antMatchers("/api/user/admin").hasAuthority("ROLE_ADMIN")
-                .antMatchers("/api/**").authenticated();
-                ;
+                .antMatchers("/api/**").authenticated()
+        ;
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.httpBasic().disable();
     }
 }
